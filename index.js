@@ -74,7 +74,7 @@ const main = async () => {
   // by sending specific command
   // my device and NPORT communicate by default on 9600
   console.log('SETTING BAUDRATE FOR MY DEVICE...');
-  socket.write('s r0x90 19200\r', 'ascii');
+  socket.write('s r0x90 57600\r', 'ascii');
   await sleep(1000);
   // we will receive nothing because my device sends on new baud rate
 
@@ -143,6 +143,9 @@ const main = async () => {
   // when NPORT send message to my device on different baudrate
   // my device interprets such message as break signal and
   // reset baudrate back to 9600.
+  socket.write('g r0x24\r', 'ascii');
+  await sleep(500);
+
   socket.write('g r0x24\r', 'ascii');
   await sleep(500);
 
