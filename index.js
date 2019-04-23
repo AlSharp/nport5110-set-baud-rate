@@ -67,7 +67,7 @@ const main = async () => {
   await sleep(2000);
 
   // send test message and wait for response
-  socket.write('g r0x24\r', 'ascii');
+  socket.write('g r0x90\r', 'ascii');
   await sleep(500);
 
   // set baudrate for divice I used with NPORT
@@ -107,26 +107,26 @@ const main = async () => {
   }
 
   // change baud rate
-  ret = CommandPort.nsio_baud(portId, 19200);
+  ret = CommandPort.nsio_baud(portId, 57600);
   if (ret < 0) {
     console.log('NSIO_BAUD ERROR: ', ret);
   } else {
     console.log('NSIO_BAUD -> OK');
   }
 
-  // close command port
-  ret = CommandPort.nsio_close(portId);
-  if (ret < 0) {
-    console.log('NSIO_CLOSE ERROR: ', ret);
-  }
-  console.log('NSIO_CLOSE -> OK');
+  // // close command port
+  // ret = CommandPort.nsio_close(portId);
+  // if (ret < 0) {
+  //   console.log('NSIO_CLOSE ERROR: ', ret);
+  // }
+  // console.log('NSIO_CLOSE -> OK');
 
-  // end
-  ret = CommandPort.nsio_end();
-  if (ret < 0) {
-    console.log('NSIO_END ERROR: ', ret);
-  }
-  console.log('NSIO_END -> OK');
+  // // end
+  // ret = CommandPort.nsio_end();
+  // if (ret < 0) {
+  //   console.log('NSIO_END ERROR: ', ret);
+  // }
+  // console.log('NSIO_END -> OK');
 
   // I assume that I have changed baudrate. I closed command port
   // to open data port again and send test message
@@ -143,10 +143,10 @@ const main = async () => {
   // when NPORT send message to my device on different baudrate
   // my device interprets such message as break signal and
   // reset baudrate back to 9600.
-  socket.write('g r0x24\r', 'ascii');
+  socket.write('g r0x90\r', 'ascii');
   await sleep(500);
 
-  socket.write('g r0x24\r', 'ascii');
+  socket.write('g r0x90\r', 'ascii');
   await sleep(500);
 
   socket.end();
