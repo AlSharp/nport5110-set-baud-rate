@@ -63,27 +63,26 @@ const main = async () => {
     console.log('DATA PORT CONNECTED');
   });
 
-  // gives enough time to open data port
-  await sleep(2000);
+  // gives enough time to get data port ready
+  await sleep(500);
 
   // send test message and wait for response
   socket.write('g r0x90\r', 'ascii');
   await sleep(500);
 
-  // set baudrate for divice I used with NPORT
+  // set baudrate for device I used with NPORT
   // by sending specific command
   // my device and NPORT communicate by default on 9600
   console.log('SETTING BAUDRATE FOR MY DEVICE...');
-  socket.write('s r0x90 57600\r', 'ascii');
-  await sleep(1000);
+  socket.write('s r0x90 115200\r', 'ascii');
+  await sleep(500);
   // we will receive nothing because my device sends on new baud rate
 
-  // close socket
+  // close data port
   socket.end();
 
   // gives enough time to close port.
-  // if data port is still open command cannot be opened. 
-  await sleep(2000);
+  await sleep(500);
 
   // now I change baudrate for NPORT so devices can talk and
   // understand each other
@@ -107,35 +106,20 @@ const main = async () => {
   }
 
   // change baud rate
-  ret = CommandPort.nsio_baud(portId, 57600);
+  ret = CommandPort.nsio_baud(portId, 115200);
   if (ret < 0) {
     console.log('NSIO_BAUD ERROR: ', ret);
   } else {
     console.log('NSIO_BAUD -> OK');
   }
 
-  // // close command port
-  // ret = CommandPort.nsio_close(portId);
-  // if (ret < 0) {
-  //   console.log('NSIO_CLOSE ERROR: ', ret);
-  // }
-  // console.log('NSIO_CLOSE -> OK');
-
-  // // end
-  // ret = CommandPort.nsio_end();
-  // if (ret < 0) {
-  //   console.log('NSIO_END ERROR: ', ret);
-  // }
-  // console.log('NSIO_END -> OK');
-
-  // I assume that I have changed baudrate. I closed command port
   // to open data port again and send test message
   socket.connect(5000,'10.1.10.65', () => {
     console.log('DATA PORT CONNECTED');
   });
 
   // wait for port readiness
-  await sleep(2000);
+  await sleep(500);
 
   // send test message and wait for response
   // expect to get "v 31" or "v 21" if baudrates are the same
@@ -151,6 +135,38 @@ const main = async () => {
 
   socket.end();
   await sleep(200);
+
+  // --- RESET
+  // break signal
+  ret = CommandPort.nsio_break(portId, 200);
+  if (ret < 0) {
+    console.log('NSIO_BREAK ERROR: ', ret);
+  } else {
+    console.log('NSIO_BREAK -> OK');
+  }
+
+  // change baud rate to default
+  ret = CommandPort.nsio_baud(portId, 9600);
+  if (ret < 0) {
+    console.log('NSIO_BAUD ERROR: ', ret);
+  } else {
+    console.log('NSIO_BAUD -> OK');
+  }
+  // ---RESET
+
+  // close command port
+  ret = CommandPort.nsio_close(portId);
+  if (ret < 0) {
+    console.log('NSIO_CLOSE ERROR: ', ret);
+  }
+  console.log('NSIO_CLOSE -> OK');
+
+  // end
+  ret = CommandPort.nsio_end();
+  if (ret < 0) {
+    console.log('NSIO_END ERROR: ', ret);
+  }
+  console.log('NSIO_END -> OK');
 
   process.exit();
 }
