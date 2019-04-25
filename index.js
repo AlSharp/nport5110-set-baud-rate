@@ -15,6 +15,7 @@ const int = ref.types.int;
 const str = ref.types.CString;
 const ulong = ref.types.ulong;
 const long = ref.types.long
+const charPtr = ref.refType('char');
 
 // import function from IP Serial Lib
 // ./IPSerial is path to IPserial.dll
@@ -25,14 +26,14 @@ const CommandPort = ffi.Library('./IPSerial', {
   'nsio_close': [int, [int]],
   'nsio_ioctl': [int, [int, int, int]],
   'nsio_baud': [int, [int, long]],
-  'nsio_break': [int, [int, int]],
+  'nsio_break': [int, [int, int]]
 });
 
 // create data port socket
 const socket = new net.Socket();
 
 // this message will be printed out if there is an error
-socket.on('error', () => {
+socket.on('error', error => {
   console.log('DATA PORT ERROR: ', error);
 })
 
@@ -78,11 +79,6 @@ const main = async () => {
   await sleep(500);
   // we will receive nothing because my device sends on new baud rate
 
-  // close data port
-  socket.end();
-
-  // gives enough time to close port.
-  await sleep(500);
 
   // now I change baudrate for NPORT so devices can talk and
   // understand each other
@@ -112,12 +108,7 @@ const main = async () => {
   } else {
     console.log('NSIO_BAUD -> OK');
   }
-
-  // to open data port again and send test message
-  socket.connect(5000,'10.1.10.65', () => {
-    console.log('DATA PORT CONNECTED');
-  });
-
+  
   // wait for port readiness
   await sleep(500);
 
@@ -133,11 +124,9 @@ const main = async () => {
   socket.write('g r0x90\r', 'ascii');
   await sleep(500);
 
-  socket.end();
-  await sleep(200);
-
   // --- RESET
   // break signal
+  console.log('BREAK SIGNAL...');
   ret = CommandPort.nsio_break(portId, 200);
   if (ret < 0) {
     console.log('NSIO_BREAK ERROR: ', ret);
@@ -167,6 +156,12 @@ const main = async () => {
     console.log('NSIO_END ERROR: ', ret);
   }
   console.log('NSIO_END -> OK');
+
+  socket.write('g r0x90\r', 'ascii');
+  await sleep(500);
+
+  socket.end();
+  await sleep(200);
 
   process.exit();
 }
